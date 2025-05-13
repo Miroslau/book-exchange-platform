@@ -161,7 +161,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Users\\local\\OneDrive\\Рабочий стол\\projects\\book-exchange-platform\\app\\generated\\prisma",
+      "value": "/Users/user/WebstormProjects/book-exchange-platform/app/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -170,17 +170,16 @@ const config = {
     "binaryTargets": [
       {
         "fromEnvVar": null,
-        "value": "windows",
+        "value": "darwin-arm64",
         "native": true
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "C:\\Users\\local\\OneDrive\\Рабочий стол\\projects\\book-exchange-platform\\prisma\\schema.prisma",
+    "sourceFilePath": "/Users/user/WebstormProjects/book-exchange-platform/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../../../prisma",
   "clientVersion": "6.7.0",
@@ -189,17 +188,18 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": true,
   "inlineDatasources": {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": "prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhcGlfa2V5IjoiOTFkOTZlZTgtZGUzZS00YWI3LWI2OTUtMmY1ZTkxY2ZhMWUxIiwidGVuYW50X2lkIjoiZDEzNTAwZDBjMjEyYjQxNWVmZjJmZWUyNzk3MmE3NmQ2M2ZjNjRjNmQ1ZTZmZmM3NzU2NGViNDRkMGJiZGU4NyIsImludGVybmFsX3NlY3JldCI6IjExZjVjYmUwLTQ3N2MtNDI1Yy04MzQ0LWQ3MDNkZGQ2ODEzNiJ9.zCOYFaM_jV1UdfmmBMK3C-HlXwRVmKScNDs1GhLMjvU"
+        "value": null
       }
     }
   },
   "inlineSchema": "// This is your Prisma schema file,\n// learn more about it in the docs: https://pris.ly/d/prisma-schema\n\n// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?\n// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init\n\ngenerator client {\n  provider = \"prisma-client-js\"\n  output   = \"../app/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nenum BookStatus {\n  OFFERED\n  SOLD\n  RESERVED\n  EXCHANGED\n}\n\nmodel User {\n  id       Int     @id @default(autoincrement())\n  email    String  @unique\n  username String  @unique\n  password String\n  avatar   String?\n\n  books    Book[]\n  comments Comment[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Book {\n  id          Int        @id @default(autoincrement())\n  title       String\n  author      String\n  description String?\n  categories  String[]\n  images      String[]\n  status      BookStatus @default(OFFERED)\n\n  owner   User @relation(fields: [ownerId], references: [id])\n  ownerId Int\n\n  comments Comment[]\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n\nmodel Comment {\n  id   Int    @id @default(autoincrement())\n  text String\n\n  book   Book @relation(fields: [bookId], references: [id])\n  bookId Int\n\n  author   User @relation(fields: [authorId], references: [id])\n  authorId Int\n\n  createdAt DateTime @default(now())\n  updatedAt DateTime @updatedAt\n}\n",
   "inlineSchemaHash": "62e5da2e797fb8a5cf02e95ec1d1f04546e2093be1a3e9d734e6ed1f4344ff32",
-  "copyEngine": false
+  "copyEngine": true
 }
 config.dirname = '/'
 
