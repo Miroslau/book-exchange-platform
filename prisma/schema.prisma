@@ -22,13 +22,13 @@ enum BookStatus {
 }
 
 model User {
-  id Int @id @default(autoincrement())
-  email String @unique
-  username String @unique
+  id       Int     @id @default(autoincrement())
+  email    String  @unique
+  username String  @unique
   password String
-  avatar String?
+  avatar   String?
 
-  books Book[]
+  books    Book[]
   comments Comment[]
 
   createdAt DateTime @default(now())
@@ -36,15 +36,15 @@ model User {
 }
 
 model Book {
-  id Int @id @default(autoincrement())
-  title String
-  author String
+  id          Int        @id @default(autoincrement())
+  title       String
+  author      String
   description String?
-  categories String[]
-  images String[]
-  status BookStatus @default(OFFERED)
+  categories  String[]
+  images      String[]
+  status      BookStatus @default(OFFERED)
 
-  owner User @relation(fields: [ownerId], references: [id])
+  owner   User @relation(fields: [ownerId], references: [id])
   ownerId Int
 
   comments Comment[]
@@ -54,13 +54,13 @@ model Book {
 }
 
 model Comment {
-  id Int @id @default(autoincrement())
+  id   Int    @id @default(autoincrement())
   text String
 
-  book Book @relation(fields: [bookId], references: [id])
+  book   Book @relation(fields: [bookId], references: [id])
   bookId Int
 
-  author User @relation(fields: [authorId], references: [id])
+  author   User @relation(fields: [authorId], references: [id])
   authorId Int
 
   createdAt DateTime @default(now())
