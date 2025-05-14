@@ -8,6 +8,8 @@ import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import GoogleSignInButton from "@/app/ui/google-sign-in-button/google-sign-in-button";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const FormSchema = z.object({
   email: z.string().min(1, "Email address is required"),
@@ -15,6 +17,7 @@ const FormSchema = z.object({
 });
 
 const SignInForm = () => {
+  const router = useRouter();
   const {
     handleSubmit,
     register,
@@ -26,9 +29,32 @@ const SignInForm = () => {
       password: "",
     },
   });
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const [isLoadingRequest, setIsLoadingRequest] = React.useState(false);
 
-  const signInSubmit = (value: z.infer<typeof FormSchema>) => {
-    console.log("form submitted!: ", value);
+  const signInSubmit = async (value: z.infer<typeof FormSchema>) => {
+    setErrorMessage(null);
+    setIsLoadingRequest(true);
+    try {
+      const signInData = await signIn("credentials", {
+        email: value.email,
+        password: value.password,
+        redirect: false,
+      });
+
+      if (signInData?.error) {
+        console.log(signInData.error);
+        setErrorMessage("The email or password is incorrect");
+      } else {
+        router.push("/");
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        setErrorMessage(error.message);
+      }
+    } finally {
+      setIsLoadingRequest(false);
+    }
   };
 
   return (
@@ -77,13 +103,23 @@ const SignInForm = () => {
           )}
         </div>
       </div>
-      <Button customClassName="w-full mt-6" size="medium" type="submit">
+      {errorMessage && (
+        <p className="text-error-600 mt-2 text-sm">{errorMessage}</p>
+      )}
+      <Button
+        disabled={isLoadingRequest}
+        customClassName="w-full mt-6"
+        size="medium"
+        type="submit"
+      >
         Sign in
       </Button>
       <div className="before: after:ml:4 before:bg-secondary-400 after:bg-secondary-400 mx-auto my-4 mr-4 flex w-full items-center justify-evenly gap-x-2.5 before:block before:h-px before:flex-grow after:block after:h-px after:flex-grow">
         or
       </div>
-      <GoogleSignInButton>Sign in with Google</GoogleSignInButton>
+      <GoogleSignInButton disabled={isLoadingRequest}>
+        Sign in with Google
+      </GoogleSignInButton>
       <p className="text-secondary-600 mt-2 w-full text-center text-sm">
         Don&apos;t have an account yet?&nbsp;
         <Link className="text-blue-500 hover:underline" href="/sign-up">

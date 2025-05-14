@@ -199,7 +199,9 @@ const SignUpForm = () => {
       <div className="before: after:ml:4 before:bg-secondary-400 after:bg-secondary-400 mx-auto my-4 mr-4 flex w-full items-center justify-evenly gap-x-2.5 before:block before:h-px before:flex-grow after:block after:h-px after:flex-grow">
         or
       </div>
-      <GoogleSignInButton>Sign in with Google</GoogleSignInButton>
+      <GoogleSignInButton disabled={isLoadingRequest}>
+        Sign in with Google
+      </GoogleSignInButton>
       <p className="mt-2 w-full text-center text-sm text-gray-600">
         Already have an account?&nbsp;
         <Link className="text-blue-500 hover:underline" href="/sign-in">
