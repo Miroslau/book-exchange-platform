@@ -7,6 +7,7 @@ import { AtSymbolIcon, KeyIcon } from "@heroicons/react/24/solid";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import GoogleSignInButton from "@/app/ui/google-sign-in-button/google-sign-in-button";
 
 const FormSchema = z.object({
   email: z.string().min(1, "Email address is required"),
@@ -82,6 +83,7 @@ const SignInForm = () => {
       <div className="before: after:ml:4 before:bg-secondary-400 after:bg-secondary-400 mx-auto my-4 mr-4 flex w-full items-center justify-evenly gap-x-2.5 before:block before:h-px before:flex-grow after:block after:h-px after:flex-grow">
         or
       </div>
+      <GoogleSignInButton>Sign in with Google</GoogleSignInButton>
       <p className="text-secondary-600 mt-2 w-full text-center text-sm">
         Don&apos;t have an account yet?&nbsp;
         <Link className="text-blue-500 hover:underline" href="/sign-up">

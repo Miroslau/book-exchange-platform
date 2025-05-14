@@ -180,7 +180,8 @@ const config = {
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null
+    "rootEnvPath": null,
+    "schemaEnvPath": "../../../.env"
   },
   "relativePath": "../../../prisma",
   "clientVersion": "6.7.0",
@@ -189,12 +190,11 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
-  "postinstall": true,
   "inlineDatasources": {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": null
+        "value": "postgres://neondb_owner:npg_oSPq1FTg6kYz@ep-muddy-sky-a2z48us8-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require"
       }
     }
   },
