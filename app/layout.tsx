@@ -23,9 +23,7 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${plusJakartaSans.variable} antialiased`}>
         <Header />
-        <main className="flex h-screen flex-col items-center justify-center">
-          {children}
-        </main>
+        <main>{children}</main>
       </body>
     </html>
   );

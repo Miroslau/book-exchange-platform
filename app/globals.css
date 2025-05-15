@@ -80,6 +80,8 @@
 
   --color-periwinkle-gray: #C3D4E9;
 
+  --color-chefs-hat: #F3F5F7;
+
   --header-grid-cols: minmax(148px, 212px) minmax(327px, 900px) auto;
 }
 
