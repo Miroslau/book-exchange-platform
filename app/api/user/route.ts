@@ -9,6 +9,11 @@ interface signUpDTO {
   password: string;
 }
 
+interface updateAvatarDTO {
+  id: number;
+  url: string;
+}
+
 const userSchema = z.object({
   username: z.string().min(1, "Username is required").max(100),
   email: z
@@ -72,4 +77,23 @@ export async function POST(request: Request) {
       { status: 500 },
     );
   }
+}
+
+export async function PATCH(request: Request) {
+  try {
+    const body: updateAvatarDTO = await request.json();
+    const { id, url } = body;
+    const user = await db.user.update({
+      where: { id },
+      data: {
+        avatar: url,
+      },
+    });
+
+    if (!user) {
+      return errorResponse("User does not found", 409);
+    }
+
+    return NextResponse.json({ user });
+  } catch (error) {}
 }
