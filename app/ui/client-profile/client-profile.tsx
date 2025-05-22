@@ -15,7 +15,6 @@ interface Props {
 }
 
 const ClientProfile: FC<Props> = ({ user }) => {
-  console.log("user: ", user.id);
   const uploadStagedFile = async (stagedFile: File | Blob) => {
     console.log("staged file: ", stagedFile);
     const form = new FormData();
@@ -75,7 +74,6 @@ const ClientProfile: FC<Props> = ({ user }) => {
         </Button>
       </div>
       <div>form inputs</div>
-      <div>books</div>
     </div>
   );
 };

@@ -17,9 +17,6 @@ export async function middleware(request: NextRequest) {
   });
   const isAuthPage = authPages.includes(pathname);
 
-  console.log("token: ", token);
-  console.log("isProtected: ", isProtected);
-
   if (isProtected && !token) {
     const loginUrl = new URL("/sign-in", request.url);
     return NextResponse.redirect(loginUrl);

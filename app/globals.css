@@ -113,3 +113,31 @@ img {
   max-width: 100%;
   display: block;
 }
+
+.genre__control {
+  border: transparent !important;
+  background: #F6F7F9 !important;
+  border-radius: 6px !important;
+  font-size: 14px !important;
+  color: #90A3BF !important;
+}
+
+.genre__input-container {
+  color: #90A3BF !important;
+}
+
+.genre__indicator-separator {
+  display: none !important;
+}
+
+.genre__clear-indicator {
+  padding: 5px !important;
+}
+
+.genre__dropdown-indicator {
+  padding: 5px !important;
+}
+
+.genre__multi-value {
+  font-size: 15px !important;
+}

@@ -11,7 +11,6 @@ import settingsIcon from "@/app/assets/icons/settings-icon.svg";
 
 const Header = async () => {
   const session = await getServerSession(authOptions);
-  console.log(session);
   return (
     <header className="fixed top-0 z-10 grid w-full grid-rows-2 items-center gap-[20px] bg-white px-[24px] py-[30px] md:grid-cols-(--header-grid-cols) md:grid-rows-1 md:py-[40px] md:pr-[32px] md:pl-[60px]">
       <div>
