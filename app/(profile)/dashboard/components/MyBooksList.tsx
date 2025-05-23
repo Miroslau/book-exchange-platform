@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import Image from "next/image";
 import BookIcon from "@/app/assets/images/book.png";
 import Button from "@/app/ui/button/button";
+import Link from "next/link";
 
 const MyBooksList = async () => {
   const cookieStore = await cookies();
@@ -26,7 +27,9 @@ const MyBooksList = async () => {
             <p className="text-secondary-300 text-[15px]">
               Add your first book
             </p>
-            <Button size="medium">Add book</Button>
+            <Link href="/dashboard/create-book">
+              <Button size="medium">Add book</Button>
+            </Link>
           </div>
         </div>
       )}

@@ -1,6 +1,6 @@
-import GanreOtion from "@/app/types/ganre-otion";
+import GenreOption from "@/app/types/ganre-otion";
 
-const BookGenre: readonly GanreOtion[] = [
+const BookGenre: readonly GenreOption[] = [
   {
     value: "fantasy",
     label: "Fantasy",
