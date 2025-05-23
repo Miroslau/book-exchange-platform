@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ChangeEvent, useRef, useState } from "react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
 import BookGenre from "@/app/lib/constants";
 import dynamic from "next/dynamic";
 import { PhotoIcon } from "@heroicons/react/24/solid";
@@ -21,9 +21,9 @@ const Select = dynamic(
 );
 
 const FormSchema = z.object({
-  title: z.string().min(1, "Title is required").max(100),
-  author: z.string().min(1, "Author is required").max(100),
-  description: z.string().min(1, "Description is required").max(1000),
+  title: z.string().min(1, "The title of book is required").max(100),
+  author: z.string().min(1, "The author of book is required").max(100),
+  description: z.string().min(1, "The description of is required").max(1000),
   genres: z
     .array(
       z.object({
@@ -40,7 +40,12 @@ const BookForm = () => {
   const [message, setMessage] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const { register, control } = useForm<z.infer<typeof FormSchema>>({
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
       title: "",
@@ -52,6 +57,10 @@ const BookForm = () => {
 
   const handleClick = () => {
     fileInputRef.current?.click();
+  };
+
+  const submitForm = (value: z.infer<typeof FormSchema>) => {
+    console.log("value: ", value);
   };
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
@@ -97,8 +106,12 @@ const BookForm = () => {
     setImages(images.filter((image) => image.name !== imageName));
   };
 
+  useEffect(() => {
+    console.log("errors: ", errors);
+  }, [errors]);
+
   return (
-    <form>
+    <form onSubmit={handleSubmit(submitForm)}>
       <div className="grid grid-cols-5 grid-rows-5 gap-10">
         <div className="col-span-2">
           <label
@@ -115,6 +128,11 @@ const BookForm = () => {
             autoComplete="off"
             className="peer bg-athens-gray placeholder:text-secondary-300 block w-full rounded-md py-[9px] pl-5 text-sm outline-none"
           />
+          {errors?.title && (
+            <p className="text-error-600 mt-2 text-sm">
+              {errors?.title?.message}
+            </p>
+          )}
         </div>
         <div className="col-span-2 col-start-1 row-start-2">
           <label
@@ -124,6 +142,7 @@ const BookForm = () => {
             Author
           </label>
           <input
+            {...register("author", { required: true })}
             id="author"
             type="text"
             placeholder="Enter an author of the book"
@@ -139,6 +158,7 @@ const BookForm = () => {
             Description
           </label>
           <textarea
+            {...register("description", { required: true })}
             id="description"
             rows="6"
             className="peer bg-athens-gray placeholder:text-secondary-300 block w-full resize-none rounded-md py-[9px] pl-5 text-sm outline-none"
