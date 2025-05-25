@@ -74,7 +74,7 @@ const BookForm = () => {
       const uploadPromises = images.map(async (image) => {
         const formData = new FormData();
         formData.append("file", image);
-        formData.append("folderRoot", "books");
+        formData.append("folderRoot", "Books");
         formData.append("folderName", `${value.title}`);
 
         const uploadResponse = await fetch("/api/upload", {
@@ -106,7 +106,7 @@ const BookForm = () => {
 
       console.log("body: ", body);
 
-      /*const response = await fetch("/api/books", {
+      const response = await fetch("/api/books", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -116,7 +116,7 @@ const BookForm = () => {
 
       if (response.ok) {
         router.back();
-      }*/
+      }
     } catch (error: unknown) {
     } finally {
       setLoading(false);

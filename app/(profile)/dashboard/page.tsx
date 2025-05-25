@@ -3,7 +3,7 @@ import Loading from "@/app/(profile)/dashboard/loading";
 import MyBooksList from "@/app/(profile)/dashboard/components/MyBooksList";
 import ClientProfile from "@/app/ui/client-profile/client-profile";
 
-const Page = () => {
+const Page = async () => {
   return (
     <div className="rounded-[10px] bg-white">
       <div className="h-[94px] rounded-t-[10px] bg-linear-to-r from-cyan-500 to-blue-500"></div>

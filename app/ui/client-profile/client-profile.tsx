@@ -32,7 +32,7 @@ const ClientProfile: FC = () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        id: user.id,
+        id: session?.user.id,
         url: data.imgUrl,
       }),
     });
