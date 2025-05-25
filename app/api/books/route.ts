@@ -97,9 +97,14 @@ export async function GET(req: NextRequest) {
       books: books,
     });
   } catch (error: unknown) {
+    let message = "Something went wrong. Please try again later";
+    if (error instanceof Error) {
+      message = error.message;
+    }
+
     return NextResponse.json(
       {
-        message: "Something went wrong. Please try again later",
+        message: message,
       },
       { status: 500 },
     );
