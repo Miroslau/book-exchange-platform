@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { cloudinary } from "@/app/lib/cloudinary.config";
 import { UploadApiResponse, UploadApiErrorResponse } from "cloudinary";
 import { getToken } from "next-auth/jwt";
+import slugify from "slugify";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/lib/auth";
 
 type UploadResponse =
   | { success: true; result?: UploadApiResponse }
@@ -10,7 +13,7 @@ type UploadResponse =
 const uploadToCloudinary = (
   fileUri: string,
   fileName: string,
-  folderName: string,
+  folderPath: string,
 ): Promise<UploadResponse> => {
   return new Promise((resolve, reject) => {
     cloudinary.uploader
@@ -18,7 +21,7 @@ const uploadToCloudinary = (
         invalidate: true,
         resource_type: "auto",
         filename_override: fileName,
-        folder: folderName,
+        folder: folderPath,
         use_filename: true,
       })
       .then((result) => {
@@ -32,23 +35,26 @@ const uploadToCloudinary = (
 
 export async function POST(request: NextRequest) {
   try {
-    const token = await getToken({
-      req: request,
-      secret: process.env.NEXTAUTH_SECRET,
-      cookieName: "next-auth.session-token",
-    });
+    const session = await getServerSession(authOptions);
 
-    if (!token) {
-      return NextResponse.json(
-        { error: "Unauthorized or expired" },
-        { status: 401 },
-      );
+    if (!session || !session.user || !session.user.email) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
     }
 
     const formData = await request.formData();
     const file = formData.get("file") as File;
 
-    const folderName = formData.get("folderName") as string;
+    const rawFolderRoot = formData.get("folderRoot") as string;
+    const rawFolderName = formData.get("folderName") as string;
+
+    console.log("rawFolderRoot: ", rawFolderRoot);
+    console.log("rawFolderName: ", rawFolderName);
+    if (!rawFolderRoot || !rawFolderName) {
+      return NextResponse.json(
+        { error: "folderRoot and folderName are required" },
+        { status: 400 },
+      );
+    }
 
     if (!file) {
       return NextResponse.json({ error: "File missing" }, { status: 400 });
@@ -62,7 +68,12 @@ export async function POST(request: NextRequest) {
 
     const fileUri = "data:" + mimeType + ";" + encoding + "," + base64Data;
 
-    const res = await uploadToCloudinary(fileUri, file.name, folderName);
+    const folderRoot = slugify(rawFolderRoot, { lower: true, strict: true });
+    const folderName = slugify(rawFolderName, { lower: true, strict: true });
+
+    const folderPath = `${folderRoot}/${folderName}`;
+
+    const res = await uploadToCloudinary(fileUri, file.name, folderPath);
 
     if (res.success && res.result) {
       return NextResponse.json({

@@ -95,5 +95,17 @@ export async function PATCH(request: Request) {
     }
 
     return NextResponse.json({ user });
-  } catch (error) {}
+  } catch (error: unknown) {
+    let message = "Something went wrong. Please try again later";
+    if (error instanceof Error) {
+      message = error.message;
+    }
+
+    return NextResponse.json(
+      {
+        message: message,
+      },
+      { status: 500 },
+    );
+  }
 }

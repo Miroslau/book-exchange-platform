@@ -27,21 +27,13 @@ export async function GET(req: NextRequest) {
     let username = req.nextUrl.searchParams.get("user");
 
     if (username && username === "me") {
-      const token = await getToken({
-        req,
-        secret: process.env.NEXTAUTH_SECRET,
-        cookieName: "next-auth.session-token",
-      });
-      console.log("token: ", token);
+      const session = await getServerSession(authOptions);
 
-      if (!token) {
-        return NextResponse.json(
-          { error: "Unauthorized or expired" },
-          { status: 401 },
-        );
+      if (!session || !session.user || !session.user.email) {
+        return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
       }
 
-      username = token.username as string;
+      username = session.user.username as string;
       console.log("username");
     }
 

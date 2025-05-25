@@ -71,16 +71,42 @@ const BookForm = () => {
   const submitForm = async (value: z.infer<typeof FormSchema>) => {
     setLoading(true);
     try {
+      const uploadPromises = images.map(async (image) => {
+        const formData = new FormData();
+        formData.append("file", image);
+        formData.append("folderRoot", "books");
+        formData.append("folderName", `${value.title}`);
+
+        const uploadResponse = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await uploadResponse.json();
+
+        if (uploadResponse.ok && data.imgUrl) {
+          return data.imgUrl;
+        } else {
+          console.error("Upload failed:", data);
+          return null;
+        }
+      });
+
+      const uploadResults = await Promise.all(uploadPromises);
+      const uploadedImageUrls = uploadResults.filter((url) => url !== null);
+
       console.log("value: ", value);
       const body: createBookDTO = {
         title: value.title,
         author: value.author,
         description: value.description,
         categories: value.categories.map((g: { value: string }) => g.value),
-        images: [],
+        images: uploadedImageUrls,
       };
 
-      const response = await fetch("/api/books", {
+      console.log("body: ", body);
+
+      /*const response = await fetch("/api/books", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -90,7 +116,7 @@ const BookForm = () => {
 
       if (response.ok) {
         router.back();
-      }
+      }*/
     } catch (error: unknown) {
     } finally {
       setLoading(false);

@@ -4,30 +4,16 @@ import React, { FC } from "react";
 import Button from "@/app/ui/button/button";
 import UserDefaultImage from "@/app/assets/images/user.png";
 import UploadImage from "@/app/ui/upload-image/upload-Image";
+import { useSession } from "next-auth/react";
 
-interface Props {
-  user: {
-    email: string;
-    username?: string;
-    id: number;
-    image?: string;
-  };
-}
-
-const ClientProfile: FC<Props> = ({ user }) => {
+const ClientProfile: FC = () => {
+  const { update, data: session } = useSession();
   const uploadStagedFile = async (stagedFile: File | Blob) => {
     console.log("staged file: ", stagedFile);
     const form = new FormData();
     form.set("file", stagedFile);
-    form.append("folderName", `user-${user.username}`);
-
-    const tokenResponse = await fetch("/api/token", {
-      method: "GET",
-    });
-
-    const { token } = await tokenResponse.json();
-
-    console.log("token: ", token);
+    form.append("folderRoot", "Users");
+    form.append("folderName", `user-${session?.user?.username}`);
 
     const response = await fetch("/api/upload", {
       method: "POST",
@@ -35,6 +21,10 @@ const ClientProfile: FC<Props> = ({ user }) => {
     });
 
     const data = await response.json();
+
+    await update({
+      image: data.imgUrl,
+    });
 
     await fetch("/api/user", {
       method: "PATCH",
@@ -55,7 +45,7 @@ const ClientProfile: FC<Props> = ({ user }) => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-[24px]">
           <UploadImage
-            src={user.image ? user.image : UserDefaultImage}
+            src={session?.user.image ? session?.user.image : UserDefaultImage}
             alt="User"
             priority
             width={100}
@@ -64,9 +54,11 @@ const ClientProfile: FC<Props> = ({ user }) => {
           />
           <div>
             <div className="text-secondary-500 text-[20px] font-medium">
-              {user.username}
+              {session?.user.username}
             </div>
-            <div className="text-secondary-300 text-[16px]">{user.email}</div>
+            <div className="text-secondary-300 text-[16px]">
+              {session?.user.email}
+            </div>
           </div>
         </div>
         <Button size="medium" customClassName="pl-[32px] pr-[32px]">
