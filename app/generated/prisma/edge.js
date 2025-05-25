@@ -161,7 +161,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "/Users/user/WebstormProjects/book-exchange-platform/app/generated/prisma",
+      "value": "/Users/miroslavrabikov/WebstormProjects/book-exchange-platform/app/generated/prisma",
       "fromEnvVar": null
     },
     "config": {
@@ -175,12 +175,11 @@ const config = {
       }
     ],
     "previewFeatures": [],
-    "sourceFilePath": "/Users/user/WebstormProjects/book-exchange-platform/prisma/schema.prisma",
+    "sourceFilePath": "/Users/miroslavrabikov/WebstormProjects/book-exchange-platform/prisma/schema.prisma",
     "isCustomOutput": true
   },
   "relativeEnvPaths": {
-    "rootEnvPath": null,
-    "schemaEnvPath": "../../../.env"
+    "rootEnvPath": null
   },
   "relativePath": "../../../prisma",
   "clientVersion": "6.7.0",
@@ -189,11 +188,12 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": true,
   "inlineDatasources": {
     "db": {
       "url": {
         "fromEnvVar": "DATABASE_URL",
-        "value": "postgres://neondb_owner:npg_oSPq1FTg6kYz@ep-muddy-sky-a2z48us8-pooler.eu-central-1.aws.neon.tech/neondb?sslmode=require"
+        "value": null
       }
     }
   },

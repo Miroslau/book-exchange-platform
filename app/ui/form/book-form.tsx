@@ -12,6 +12,14 @@ import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Button from "@/app/ui/button/button";
 
+interface createBookDTO {
+  title: string;
+  author: string;
+  description: string;
+  categories: string[];
+  images: string[];
+}
+
 const Select = dynamic(
   () => import("react-select").then((mod) => mod.default),
   {
@@ -24,7 +32,7 @@ const FormSchema = z.object({
   title: z.string().min(1, "The title of book is required").max(100),
   author: z.string().min(1, "The author of book is required").max(100),
   description: z.string().min(1, "The description of is required").max(1000),
-  genres: z
+  categories: z
     .array(
       z.object({
         value: z.string(),
@@ -39,6 +47,7 @@ const BookForm = () => {
   const router = useRouter();
   const [message, setMessage] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const {
     register,
@@ -51,7 +60,7 @@ const BookForm = () => {
       title: "",
       author: "",
       description: "",
-      genres: [BookGenre[0], BookGenre[1]],
+      categories: [],
     },
   });
 
@@ -59,8 +68,33 @@ const BookForm = () => {
     fileInputRef.current?.click();
   };
 
-  const submitForm = (value: z.infer<typeof FormSchema>) => {
-    console.log("value: ", value);
+  const submitForm = async (value: z.infer<typeof FormSchema>) => {
+    setLoading(true);
+    try {
+      console.log("value: ", value);
+      const body: createBookDTO = {
+        title: value.title,
+        author: value.author,
+        description: value.description,
+        categories: value.categories.map((g: { value: string }) => g.value),
+        images: [],
+      };
+
+      const response = await fetch("/api/books", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      });
+
+      if (response.ok) {
+        router.back();
+      }
+    } catch (error: unknown) {
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleDrop = (event: React.DragEvent<HTMLDivElement>) => {
@@ -149,6 +183,11 @@ const BookForm = () => {
             autoComplete="off"
             className="peer bg-athens-gray placeholder:text-secondary-300 block w-full rounded-md py-[9px] pl-5 text-sm outline-none"
           />
+          {errors?.author && (
+            <p className="text-error-600 mt-2 text-sm">
+              {errors?.author?.message}
+            </p>
+          )}
         </div>
         <div className="col-span-3 col-start-3 row-span-2 row-start-1">
           <label
@@ -164,6 +203,11 @@ const BookForm = () => {
             className="peer bg-athens-gray placeholder:text-secondary-300 block w-full resize-none rounded-md py-[9px] pl-5 text-sm outline-none"
             placeholder="Write your thoughts here..."
           ></textarea>
+          {errors?.description && (
+            <p className="text-error-600 mt-2 text-sm">
+              {errors?.description?.message}
+            </p>
+          )}
         </div>
         <div className="col-span-5 row-start-3">
           <label
@@ -174,17 +218,25 @@ const BookForm = () => {
           </label>
           <Controller
             control={control}
-            render={({ field }) => (
+            render={({ field: { onChange, onBlur, value, name, ref } }) => (
               <Select
                 options={BookGenre}
-                isMulti
-                onChange={({ value }) => field.onChange(value)}
+                onChange={onChange}
+                isMulti={true}
+                onBlur={onBlur}
+                name={name}
+                value={value}
+                ref={ref}
                 classNamePrefix="Select genre"
-                defaultValue={[BookGenre[0], BookGenre[1]]}
               />
             )}
-            name="genres"
+            name="categories"
           />
+          {errors?.categories && (
+            <p className="text-error-600 mt-2 text-sm">
+              Genre list must not be empty
+            </p>
+          )}
         </div>
         <div className="col-span-5 row-span-2 row-start-4">
           <div
@@ -236,7 +288,7 @@ const BookForm = () => {
         </div>
       </div>
       <div className="flex gap-4">
-        <Button type="submit" size="large">
+        <Button disabled={loading} type="submit" size="large">
           Create
         </Button>
         <Button

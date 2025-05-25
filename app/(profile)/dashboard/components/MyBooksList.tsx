@@ -15,6 +15,8 @@ const MyBooksList = async () => {
   });
   const { books } = await booksResponse.json();
 
+  console.log("books: ", books);
+
   return (
     <div className="pt-5">
       {!books.length && (
