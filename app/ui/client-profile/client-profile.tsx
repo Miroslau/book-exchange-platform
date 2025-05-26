@@ -1,12 +1,12 @@
 "use client";
 
-import React, { FC } from "react";
+import React from "react";
 import Button from "@/app/ui/button/button";
 import UserDefaultImage from "@/app/assets/images/user.png";
 import UploadImage from "@/app/ui/upload-image/upload-Image";
 import { useSession } from "next-auth/react";
 
-const ClientProfile: FC = () => {
+const ClientProfile = () => {
   const { update, data: session } = useSession();
   const uploadStagedFile = async (stagedFile: File | Blob) => {
     console.log("staged file: ", stagedFile);
@@ -45,7 +45,11 @@ const ClientProfile: FC = () => {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-[24px]">
           <UploadImage
-            src={session?.user.image ? session?.user.image : UserDefaultImage}
+            src={
+              session && session.user.image
+                ? session.user.image
+                : UserDefaultImage
+            }
             alt="User"
             priority
             width={100}
@@ -54,10 +58,10 @@ const ClientProfile: FC = () => {
           />
           <div>
             <div className="text-secondary-500 text-[20px] font-medium">
-              {session?.user.username}
+              {session ? session.user.username : ""}
             </div>
             <div className="text-secondary-300 text-[16px]">
-              {session?.user.email}
+              {session ? session.user.email : ""}
             </div>
           </div>
         </div>
