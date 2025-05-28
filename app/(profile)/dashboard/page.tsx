@@ -6,22 +6,7 @@ import { cookies } from "next/headers";
 import ClientProfile from "@/app/ui/client-profile/client-profile";
 import Button from "@/app/ui/button/button";
 import Link from "next/link";
-
-interface Book {
-  author: string;
-  categories: string[];
-  createdAt: string;
-  description: string;
-  id: number;
-  images: string[];
-  owner: {
-    avatar: string;
-    email: string;
-    id: number;
-    username: string;
-  };
-  title: string;
-}
+import Book from "@/app/types/book";
 
 async function getMyBooks() {
   const cookieStore = await cookies();

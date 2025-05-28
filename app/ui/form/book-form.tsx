@@ -228,6 +228,7 @@ const BookForm = () => {
             rows="6"
             className="peer bg-athens-gray placeholder:text-secondary-300 block w-full resize-none rounded-md py-[9px] pl-5 text-sm outline-none"
             placeholder="Write your thoughts here..."
+            maxLength="520"
           ></textarea>
           {errors?.description && (
             <p className="text-error-600 mt-2 text-sm">

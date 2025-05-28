@@ -10,39 +10,13 @@ import {
   ChevronDoubleRightIcon,
 } from "@heroicons/react/24/outline";
 import imageLoader from "@/app/lib/imageLoader";
+import Book from "@/app/types/book";
 
 const ITEM_WIDTH = 200;
 
-interface Book {
-  author: string;
-  categories: string[];
-  createdAt: string;
-  description: string;
-  id: number;
-  images: string[];
-  owner: {
-    avatar: string;
-    email: string;
-    id: number;
-    username: string;
-  };
-  title: string;
-}
 interface Props {
   books: Book[];
 }
-
-const SAMPLE_DATA = [
-  { id: 1 },
-  { id: 2 },
-  { id: 3 },
-  { id: 4 },
-  { id: 5 },
-  { id: 6 },
-  { id: 7 },
-  { id: 8 },
-  { id: 9 },
-];
 
 const MyBooks: FC<Props> = ({ books }) => {
   const [scrollPosition, setScrollPosition] = useState(0);
