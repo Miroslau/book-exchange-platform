@@ -1,7 +1,8 @@
 import { stackMiddlewares } from "@/middlewares/stackHandler";
 import { authMiddleware } from "@/middlewares/auth-middleware";
+import { mainPageMiddleware } from "@/middlewares/main-page-middleware";
 
-const middlewares = [authMiddleware];
+const middlewares = [mainPageMiddleware, authMiddleware];
 
 export default stackMiddlewares(middlewares);
 
