@@ -1,7 +1,7 @@
 "use client";
 
 import React, { FC, useEffect, useRef, useState } from "react";
-import Image, { ImageLoaderProps } from "next/image";
+import Image from "next/image";
 import BookIcon from "@/app/assets/images/book.png";
 import Button from "@/app/ui/button/button";
 import Link from "next/link";
@@ -11,6 +11,7 @@ import {
 } from "@heroicons/react/24/outline";
 import imageLoader from "@/app/lib/imageLoader";
 import Book from "@/app/types/book";
+import { useRouter } from "next/navigation";
 
 const ITEM_WIDTH = 200;
 
@@ -19,6 +20,7 @@ interface Props {
 }
 
 const MyBooks: FC<Props> = ({ books }) => {
+  const router = useRouter();
   const [scrollPosition, setScrollPosition] = useState(0);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
@@ -32,6 +34,10 @@ const MyBooks: FC<Props> = ({ books }) => {
       containerRef.current.scrollLeft = newScrollPosition;
       console.log("containerRef.current: ", containerRef.current.scrollLeft);
     }
+  };
+
+  const handleClick = (bookId: number) => {
+    router.push(`/books/${bookId}`);
   };
 
   useEffect(() => {
@@ -74,7 +80,8 @@ const MyBooks: FC<Props> = ({ books }) => {
             {books.map((book) => (
               <div
                 key={book.id}
-                className="ml-6 inline-block max-w-[182px] rounded-lg border p-4 shadow first:ml-0"
+                onClick={handleClick.bind(this, book.id)}
+                className="ml-6 inline-block max-w-[182px] cursor-pointer rounded-lg border p-4 shadow first:ml-0"
               >
                 <div className="relative mb-[8px] h-40 w-full">
                   <Image

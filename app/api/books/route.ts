@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getToken } from "next-auth/jwt";
 import { db } from "@/app/lib/db";
 import { z } from "zod";
 import { getServerSession } from "next-auth";

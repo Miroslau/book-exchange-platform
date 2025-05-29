@@ -1,33 +1,9 @@
-import { NextResponse } from "next/server";
-import type { NextRequest } from "next/server";
-import { getToken } from "next-auth/jwt";
+import { stackMiddlewares } from "@/middlewares/stackHandler";
+import { authMiddleware } from "@/middlewares/auth-middleware";
 
-const protectedRoutes = ["/dashboard"];
-const authPages = ["/sign-in", "/sign-up"];
+const middlewares = [authMiddleware];
 
-export async function middleware(request: NextRequest) {
-  const token = await getToken({
-    req: request,
-    secret: process.env.AUTH_SECRET,
-  });
-  const pathname = request.nextUrl.pathname;
-
-  const isProtected = protectedRoutes.some((route) => {
-    return pathname.startsWith(route);
-  });
-  const isAuthPage = authPages.includes(pathname);
-
-  if (isProtected && !token) {
-    const loginUrl = new URL("/sign-in", request.url);
-    return NextResponse.redirect(loginUrl);
-  }
-
-  if (token && isAuthPage) {
-    return NextResponse.redirect(new URL("/", request.url));
-  }
-
-  return NextResponse.next();
-}
+export default stackMiddlewares(middlewares);
 
 export const config = {
   matcher: ["/((?!_next|api|static|favicon.ico).*)"], // фильтруем только реальные страницы
