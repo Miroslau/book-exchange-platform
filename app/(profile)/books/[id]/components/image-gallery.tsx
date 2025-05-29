@@ -11,21 +11,8 @@ const ImageGallery: FC<Props> = ({ images }) => {
   const [mainImage, setMainImage] = useState(images[0]);
 
   return (
-    <div className="flex flex-col space-y-4">
-      <div className="w-full max-w-xl overflow-hidden rounded-2xl shadow-lg">
-        <Image
-          className="rounded-xl object-cover"
-          quality={100}
-          width={0}
-          height={0}
-          src={mainImage}
-          alt="main photo"
-          sizes="100vw"
-          blurDataURL="data:image/svg+xml;base64"
-          style={{ width: "100%", height: "auto" }}
-        />
-      </div>
-      <div className="flex flex-wrap gap-[14px] space-x-2 overflow-x-auto">
+    <div className="flex space-x-4">
+      <div className="flex flex-col gap-4 overflow-y-auto">
         {images.map((image, index) => (
           <Image
             onClick={setMainImage.bind(this, image)}
@@ -42,6 +29,19 @@ const ImageGallery: FC<Props> = ({ images }) => {
             }}
           />
         ))}
+      </div>
+      <div className="h-[100%] w-full overflow-hidden rounded-2xl shadow-lg">
+        <Image
+          className="rounded-xl object-cover"
+          quality={100}
+          width={0}
+          height={0}
+          src={mainImage}
+          alt="main photo"
+          sizes="100vw"
+          blurDataURL="data:image/svg+xml;base64"
+          style={{ width: "100%", height: "auto" }}
+        />
       </div>
     </div>
   );

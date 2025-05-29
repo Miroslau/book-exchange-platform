@@ -4,6 +4,7 @@ import ImageGallery from "@/app/(profile)/books/[id]/components/image-gallery";
 import Button from "@/app/ui/button/button";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/lib/auth";
+import Link from "next/link";
 
 export const revalidate = 60;
 
@@ -40,8 +41,10 @@ export default async function Page({
 
   return (
     <div className="mt-[160px] mr-[32px] ml-[32px]">
-      <div className="flex items-center justify-between">
-        <Button size="medium">Go Back</Button>
+      <div className="flex items-center justify-between pb-4">
+        <Link href="/">
+          <Button size="medium">Go Back</Button>
+        </Link>
         {session && session.user.id && session.user.id === book.owner.id && (
           <Button size="medium">Edit book</Button>
         )}
