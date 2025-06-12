@@ -17,8 +17,13 @@ export async function GET(
         id: +id,
       },
       include: {
-        owner: true,
-        comments: true,
+        owner: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+          },
+        },
       },
     });
 

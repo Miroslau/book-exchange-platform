@@ -1,6 +1,6 @@
 import React, { Suspense } from "react";
-import Loading from "@/app/(profile)/dashboard/loading";
-import MyBooks from "@/app/(profile)/dashboard/components/MyBooks";
+import Loading from "@/app/(admin)/dashboard/loading";
+import MyBooks from "@/app/(admin)/dashboard/components/MyBooks";
 
 import { cookies } from "next/headers";
 import ClientProfile from "@/app/ui/client-profile/client-profile";

@@ -30,17 +30,15 @@ const ImageGallery: FC<Props> = ({ images }) => {
           />
         ))}
       </div>
-      <div className="h-[100%] w-full overflow-hidden rounded-2xl shadow-lg">
+      <div className="h-[100%] w-full overflow-hidden rounded-2xl">
         <Image
-          className="rounded-xl object-cover"
+          className="h-auto max-h-[668px] w-auto rounded-xl"
           quality={100}
           width={0}
           height={0}
           src={mainImage}
           alt="main photo"
-          sizes="100vw"
           blurDataURL="data:image/svg+xml;base64"
-          style={{ width: "100%", height: "auto" }}
         />
       </div>
     </div>

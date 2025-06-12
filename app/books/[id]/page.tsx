@@ -1,10 +1,12 @@
 import React from "react";
 import Book from "@/app/types/book";
-import ImageGallery from "@/app/(profile)/books/[id]/components/image-gallery";
+import ImageGallery from "@/app/books/[id]/components/image-gallery";
 import Button from "@/app/ui/button/button";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/lib/auth";
 import Link from "next/link";
+import Discussion from "@/app/books/[id]/components/discussion";
+import Comment from "@/app/types/comment";
 
 export const revalidate = 60;
 
@@ -22,10 +24,14 @@ export async function generateStaticParams() {
 
 export default async function Page({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ showAll?: string }>;
 }) {
   const { id } = await params;
+  const { showAll } = await searchParams;
+  const showAllParam = showAll === "true";
 
   const session = await getServerSession(authOptions);
 
@@ -37,10 +43,16 @@ export default async function Page({
     response.json(),
   );
 
-  console.log("book: ", book);
+  const commentUrl = new URL("http://localhost:3000/api/comments");
+  commentUrl.searchParams.set("bookId", id);
+  if (!showAllParam) commentUrl.searchParams.set("limit", "2");
+
+  const { comments }: { comments: Comment[] } = await fetch(
+    commentUrl.toString(),
+  ).then((response) => response.json());
 
   return (
-    <div className="mt-[160px] mr-[32px] ml-[32px]">
+    <div className="mr-[32px] ml-[32px] pt-[20px]">
       <div className="flex items-center justify-between pb-4">
         <Link href="/">
           <Button size="medium">Go Back</Button>
@@ -49,11 +61,9 @@ export default async function Page({
           <Button size="medium">Edit book</Button>
         )}
       </div>
-      <div className="grid grid-cols-2 grid-rows-3 gap-[20px]">
-        <div className="row-span-2">
-          <ImageGallery images={book.images} />
-        </div>
-        <div className="row-span-2 rounded-[10px] bg-white p-[24px]">
+      <div className="flex gap-[20px]">
+        <ImageGallery images={book.images} />
+        <div className="flex-1 rounded-[10px] bg-white p-[24px]">
           <h3 className="text-[32px] font-bold">{book.title}</h3>
           <p className="text-secondary-400 text-[14px] font-medium">
             {book.author}
@@ -83,10 +93,8 @@ export default async function Page({
             </div>
           </div>
         </div>
-        <div className="col-span-2 rounded-[10px] bg-white p-[24px]">
-          Commnets
-        </div>
       </div>
+      <Discussion bookId={id} comments={comments} showAll={showAllParam} />
     </div>
   );
 }

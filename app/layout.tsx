@@ -6,6 +6,7 @@ import { SessionProvider } from "next-auth/react";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/lib/auth";
 import SessionProviderClientComponent from "@/app/ui/session-provider-client-component/session-provider-client-component";
+import { SideBarProvider } from "@/app/context/side-bar-context";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
@@ -28,8 +29,10 @@ export default async function RootLayout({
     <html lang="en">
       <body className={`${plusJakartaSans.variable} antialiased`}>
         <SessionProviderClientComponent session={session}>
-          <Header />
-          <main>{children}</main>
+          <SideBarProvider>
+            <Header />
+            <main>{children}</main>
+          </SideBarProvider>
         </SessionProviderClientComponent>
       </body>
     </html>
