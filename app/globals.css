@@ -85,6 +85,20 @@
   --header-grid-cols: minmax(148px, 212px) minmax(327px, 900px) auto;
 }
 
+@utility scrollbar-hidden {
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  &::-webkit-scrollbar-track {
+    background: #F6F7F9;
+  }
+  &::-webkit-scrollbar-thumb {
+    background-color: #264BC8;
+    border-radius: 20px;
+    border: 1px solid white;
+  }
+}
+
 :root {
   --background: #F6F7F9;
 }
@@ -98,15 +112,6 @@ html, body {
 
 * {
   box-sizing: border-box;
-}
-
-a {
-  color: #0070f3;
-  text-decoration: none;
-}
-
-a:hover {
-  text-decoration: underline;
 }
 
 img {
@@ -140,6 +145,10 @@ img {
 
 .genre__multi-value {
   font-size: 15px !important;
+}
+
+.genre__menu {
+  z-index: 10 !important;
 }
 
 .genre__menu {

@@ -24,14 +24,12 @@ const Header = () => {
 
   return (
     <header className="fixed top-0 z-10 grid w-full grid-rows-2 items-center gap-[20px] bg-white px-[24px] py-[30px] md:grid-cols-(--header-grid-cols) md:grid-rows-1 md:py-[40px] md:pr-[32px] md:pl-[60px]">
-      <div>
-        <Link
-          className="text-primary-netural-palette-500 text-[24px] font-[650] uppercase no-underline md:text-[32px]"
-          href="/"
-        >
-          BookShop
-        </Link>
-      </div>
+      <Link
+        className="text-primary-netural-palette-500 text-[24px] font-[650] uppercase md:text-[32px]"
+        href="/"
+      >
+        BookShop
+      </Link>
       <div className="col-span-2 col-start-1 md:col-span-1 md:col-start-2">
         <SearchBar handleSideBarMenu={toggleOpen} />
       </div>

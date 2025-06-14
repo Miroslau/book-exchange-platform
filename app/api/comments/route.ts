@@ -12,7 +12,10 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const limit = parseInt(req.nextUrl.searchParams.get("limit") as string);
+    const limit = parseInt(req.nextUrl.searchParams.get("take") as string) | 8;
+    const offset = parseInt(req.nextUrl.searchParams.get("skip") as string) | 0;
+
+    const total = await db.comment.count({ where: { bookId } });
 
     const comments = await db.comment.findMany({
       where: { bookId },
@@ -27,13 +30,15 @@ export async function GET(req: NextRequest) {
           },
         },
       },
-      ...(limit && { take: limit }),
+      take: limit,
+      skip: offset,
     });
 
     return NextResponse.json(
       {
         message: "success",
         comments: comments,
+        total: total,
       },
       { status: 200 },
     );

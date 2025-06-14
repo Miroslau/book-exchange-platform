@@ -24,14 +24,10 @@ export async function generateStaticParams() {
 
 export default async function Page({
   params,
-  searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ showAll?: string }>;
 }) {
   const { id } = await params;
-  const { showAll } = await searchParams;
-  const showAllParam = showAll === "true";
 
   const session = await getServerSession(authOptions);
 
@@ -42,14 +38,6 @@ export default async function Page({
   } = await fetch(`http://localhost:3000/api/books/${id}`).then((response) =>
     response.json(),
   );
-
-  const commentUrl = new URL("http://localhost:3000/api/comments");
-  commentUrl.searchParams.set("bookId", id);
-  if (!showAllParam) commentUrl.searchParams.set("limit", "2");
-
-  const { comments }: { comments: Comment[] } = await fetch(
-    commentUrl.toString(),
-  ).then((response) => response.json());
 
   return (
     <div className="mr-[32px] ml-[32px] pt-[20px]">
@@ -94,7 +82,7 @@ export default async function Page({
           </div>
         </div>
       </div>
-      <Discussion bookId={id} comments={comments} showAll={showAllParam} />
+      <Discussion bookId={id} />
     </div>
   );
 }
