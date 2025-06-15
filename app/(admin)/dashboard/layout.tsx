@@ -8,9 +8,6 @@ const Layout = ({
 }>) => {
   return (
     <div className="flex h-screen pt-[124px]">
-      <div className="w-[286px]">
-        <SideBar />
-      </div>
       <div className="flex-grow p-[32px] md:overflow-y-auto">{children}</div>
     </div>
   );

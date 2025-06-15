@@ -1,11 +1,13 @@
+"use client";
+
 import React from "react";
 import UserDefaultImage from "@/app/assets/images/user.png";
 import Image from "next/image";
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/app/lib/auth";
+import Button from "@/app/ui/button/button";
+import { signOut, useSession } from "next-auth/react";
 
-const ClientProfile = async () => {
-  const session = await getServerSession(authOptions);
+const ClientProfile = () => {
+  const { data: session } = useSession();
 
   return (
     <div className="p-[32px]">
@@ -33,6 +35,9 @@ const ClientProfile = async () => {
             </div>
           </div>
         </div>
+        <Button size="small" onClick={() => signOut()}>
+          Sign out
+        </Button>
       </div>
     </div>
   );
