@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/app/lib/db";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/app/lib/auth";
 
 export async function GET(req: NextRequest) {
   try {
@@ -39,6 +41,67 @@ export async function GET(req: NextRequest) {
         message: "success",
         comments: comments,
         total: total,
+      },
+      { status: 200 },
+    );
+  } catch (error: unknown) {
+    let message = "Something went wrong. Please try again later";
+    if (error instanceof Error) {
+      message = error.message;
+    }
+
+    return NextResponse.json(
+      {
+        message: message,
+      },
+      { status: 500 },
+    );
+  }
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+
+    if (!session || !session.user || !session.user.email) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    const body: {
+      content: string;
+      bookId: number;
+    } = await req.json();
+    const { bookId, content } = body;
+
+    if (!content || !bookId) {
+      return NextResponse.json(
+        { error: "Missing text, bookId" },
+        { status: 400 },
+      );
+    }
+
+    const newComment = await db.comment.create({
+      data: {
+        text: content,
+        book: { connect: { id: bookId } },
+        author: { connect: { id: session.user.id } },
+      },
+      include: {
+        author: {
+          select: {
+            id: true,
+            username: true,
+            avatar: true,
+            email: true,
+          },
+        },
+      },
+    });
+
+    return NextResponse.json(
+      {
+        message: "success",
+        comment: newComment,
       },
       { status: 200 },
     );

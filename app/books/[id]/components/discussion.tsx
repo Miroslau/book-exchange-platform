@@ -1,12 +1,9 @@
 "use client";
 
 import React, { FC, useEffect, useRef, useState } from "react";
-import Button from "@/app/ui/button/button";
-import { useRouter, useSearchParams } from "next/navigation";
 import Comment from "@/app/types/comment";
 import DefaultUserImage from "@/app/assets/images/user.png";
 import Image from "next/image";
-import Link from "next/link";
 import { useSession } from "next-auth/react";
 
 interface Props {
@@ -23,15 +20,22 @@ const Discussion: FC<Props> = ({ bookId }) => {
   const [hasMore, setHasMore] = useState(true);
   const [totalComments, setTotalComments] = useState<number>(0);
   const loaderRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
 
   const fetchComments = async () => {
     setLoading(true);
+
+    if (skip === 0) {
+      setComments([]);
+      setHasMore(true);
+    }
 
     try {
       const response = await fetch(
         `/api/comments?bookId=${bookId}&skip=${skip}&take=${TAKE}`,
         {
           method: "GET",
+          cache: "no-store",
         },
       );
 
@@ -44,7 +48,10 @@ const Discussion: FC<Props> = ({ bookId }) => {
         total: number;
       } = await response.json();
       setTotalComments(total);
-      setComments((prev) => [...prev, ...newComments]);
+      setComments((prev) => {
+        const merged = [...prev, ...newComments];
+        return Array.from(new Map(merged.map((c) => [c.id, c])).values());
+      });
       setSkip((prev) => prev + TAKE);
       if (newComments.length < TAKE) {
         setHasMore(false);
@@ -56,9 +63,73 @@ const Discussion: FC<Props> = ({ bookId }) => {
     }
   };
 
+  const handleSubmit = async () => {
+    const tempId = Date.now();
+    console.log(tempId);
+    const comment: Comment = {
+      id: tempId,
+      text: inputRef.current?.value as string,
+      book: parseInt(bookId),
+      author: {
+        id: session?.user?.id as number,
+        username: session?.user?.username as string,
+        email: session?.user?.email as string,
+        avatar: session?.user?.image || DefaultUserImage,
+      },
+      createdAt: new Date().toString(),
+      updatedAt: new Date().toString(),
+    };
+    setComments((prev) => [comment, ...prev]);
+    if (inputRef.current && inputRef.current.value) {
+      inputRef.current.value = "";
+    }
+    try {
+      const response = await fetch("/api/comments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: comment.text,
+          bookId: parseInt(bookId),
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Something went wrong");
+      }
+
+      const { comment: newComment } = await response.json();
+
+      setComments((prev) =>
+        prev.map((c) => (c.id === tempId ? newComment : c)),
+      );
+    } catch (error: unknown) {
+      console.error("Fetch failed", error);
+      setComments((prev) => prev.filter((c) => c.id !== tempId));
+    }
+  };
+
   useEffect(() => {
     fetchComments();
   }, [bookId]);
+
+  useEffect(() => {
+    if (!hasMore || loading) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        console.log("fetch comments");
+        fetchComments();
+      }
+    });
+
+    const loader = loaderRef.current;
+
+    if (loader) observer.observe(loader);
+
+    return () => {
+      if (loader) observer.unobserve(loader);
+    };
+  }, [hasMore, loading]);
 
   return (
     <div className="mt-[20px] rounded-[10px] bg-white p-[24px]">
@@ -77,28 +148,19 @@ const Discussion: FC<Props> = ({ bookId }) => {
               type="text"
               className="w-full rounded-lg border border-gray-300 bg-white px-5 py-3 text-lg leading-relaxed font-normal text-gray-900 placeholder-gray-400 shadow-[0px_1px_2px_0px_rgba(16,_24,_40,_0.05)] focus:outline-none"
               placeholder="Write comments here...."
+              ref={inputRef}
+              onKeyDown={(event) => {
+                if (event.key === "Enter" && inputRef.current?.value !== "") {
+                  event.preventDefault();
+                  handleSubmit();
+                }
+              }}
             />
-            <Link href="" className="absolute top-[18px] right-6">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="20"
-                height="20"
-                viewBox="0 0 20 20"
-                fill="none"
-              >
-                <path
-                  d="M11.3011 8.69906L8.17808 11.8221M8.62402 12.5909L8.79264 12.8821C10.3882 15.638 11.1859 17.016 12.2575 16.9068C13.3291 16.7977 13.8326 15.2871 14.8397 12.2661L16.2842 7.93238C17.2041 5.17273 17.6641 3.79291 16.9357 3.06455C16.2073 2.33619 14.8275 2.79613 12.0679 3.71601L7.73416 5.16058C4.71311 6.16759 3.20259 6.6711 3.09342 7.7427C2.98425 8.81431 4.36221 9.61207 7.11813 11.2076L7.40938 11.3762C7.79182 11.5976 7.98303 11.7083 8.13747 11.8628C8.29191 12.0172 8.40261 12.2084 8.62402 12.5909Z"
-                  stroke="#111827"
-                  stroke-width="1.6"
-                  stroke-linecap="round"
-                />
-              </svg>
-            </Link>
           </div>
         </div>
       )}
       <div className="pt-[32px]">
-        <div>
+        <div className="flex flex-col gap-y-[24px]">
           {comments.map((comment) => (
             <div key={comment.id}>
               <div className="flex justify-between">
@@ -129,14 +191,17 @@ const Discussion: FC<Props> = ({ bookId }) => {
                 </div>
                 <div>date and rating</div>
               </div>
+              <div className="text-secondary-400 pt-[12px] pl-[70px] text-[14px] tracking-tighter">
+                {comment.text}
+              </div>
             </div>
           ))}
-          {hasMore && (
-            <div ref={loaderRef} className="py-4 text-center text-gray-500">
-              {loading ? "Loading..." : "Scroll to load more"}
-            </div>
-          )}
         </div>
+        {hasMore && (
+          <div ref={loaderRef} className="py-4 text-center text-gray-500">
+            {loading ? "Loading..." : "Scroll to load more"}
+          </div>
+        )}
       </div>
     </div>
   );
