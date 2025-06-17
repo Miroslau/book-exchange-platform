@@ -15,6 +15,7 @@ async function getMyBooks() {
     headers: {
       Cookie: cookieStore.toString(),
     },
+    cache: "no-store",
   });
   const {
     books,

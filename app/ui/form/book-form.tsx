@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ChangeEvent, useEffect, useRef, useState } from "react";
+import React, { ChangeEvent, FC, useEffect, useRef, useState } from "react";
 import BookGenre from "@/app/lib/constants";
 import dynamic from "next/dynamic";
 import { PhotoIcon } from "@heroicons/react/24/solid";
@@ -11,13 +11,21 @@ import { z } from "zod";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import Button from "@/app/ui/button/button";
+import Book, { BookImage } from "@/app/types/book";
 
-interface createBookDTO {
+interface BookDTO {
   title: string;
   author: string;
   description: string;
   categories: string[];
-  images: string[];
+  images?: string[];
+  newImages?: string[];
+  imagesToDelete?: string[];
+}
+
+interface BookFormProps {
+  book?: Book;
+  mode?: "create" | "edit";
 }
 
 const Select = dynamic(
@@ -42,18 +50,25 @@ const FormSchema = z.object({
     .min(1, "List of genres is required"),
 });
 
-const BookForm = () => {
-  const [images, setImages] = useState<File[]>([]);
+const BookForm: FC<BookFormProps> = ({ book, mode = "edit" }) => {
+  const [newImages, setNewImages] = useState<File[]>([]);
+  const [existingImages, setExistingImages] = useState<BookImage[]>(
+    book?.images || [],
+  );
+  const [imagesToDelete, setImagesToDelete] = useState<string[]>([]);
   const router = useRouter();
   const [message, setMessage] = useState<string>("");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState<boolean>(false);
+
+  const isEditMode = mode === "edit" && book;
 
   const {
     register,
     control,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -71,7 +86,7 @@ const BookForm = () => {
   const submitForm = async (value: z.infer<typeof FormSchema>) => {
     setLoading(true);
     try {
-      const uploadPromises = images.map(async (image) => {
+      const uploadPromises = newImages.map(async (image) => {
         const formData = new FormData();
         formData.append("file", image);
         formData.append("folderRoot", "Books");
@@ -95,19 +110,32 @@ const BookForm = () => {
       const uploadResults = await Promise.all(uploadPromises);
       const uploadedImageUrls = uploadResults.filter((url) => url !== null);
 
-      console.log("value: ", value);
-      const body: createBookDTO = {
-        title: value.title,
-        author: value.author,
-        description: value.description,
-        categories: value.categories.map((g: { value: string }) => g.value),
-        images: uploadedImageUrls,
-      };
+      let body;
 
-      console.log("body: ", body);
+      if (isEditMode) {
+        body = {
+          title: value.title,
+          author: value.author,
+          description: value.description,
+          categories: value.categories.map((g: { value: string }) => g.value),
+          newImages: uploadedImageUrls,
+          imagesToDelete,
+        };
+      } else {
+        body = {
+          title: value.title,
+          author: value.author,
+          description: value.description,
+          categories: value.categories.map((g: { value: string }) => g.value),
+          images: uploadedImageUrls,
+        };
+      }
 
-      const response = await fetch("/api/books", {
-        method: "POST",
+      const url = isEditMode ? `/api/books/${book.id}` : "/api/books";
+      const method = isEditMode ? "PUT" : "POST";
+
+      const response = await fetch(url, {
+        method,
         headers: {
           "Content-Type": "application/json",
         },
@@ -116,8 +144,13 @@ const BookForm = () => {
 
       if (response.ok) {
         router.back();
+      } else {
+        const errorData = await response.json();
+        setMessage(errorData.message || "Something went wrong");
       }
     } catch (error: unknown) {
+      setMessage("Something went wrong. Please try again.");
+      console.error("Form submission error:", error);
     } finally {
       setLoading(false);
     }
@@ -131,44 +164,65 @@ const BookForm = () => {
     const files = event.dataTransfer.files;
     const validImageTypes = ["image/gif", "image/jpeg", "image/png"];
 
-    const newImages: File[] = [];
+    const validNewImages: File[] = [];
 
     for (let index = 0; index < files.length; index++) {
       const file = files[index];
       if (validImageTypes.includes(file.type)) {
-        newImages.push(file);
+        validNewImages.push(file);
       } else {
         setMessage("only images accepted");
       }
     }
 
-    setImages((prev) => [...prev, ...newImages]);
+    setNewImages((prev) => [...prev, ...validNewImages]);
   };
 
   const handleImages = (event: ChangeEvent<HTMLInputElement>) => {
     setMessage("");
 
-    const image = event.target.files!;
+    const files = event.target.files;
+    if (!files) return;
 
-    for (let index = 0; index < image.length; index++) {
-      const fileType = image[index]["type"];
+    const validNewImages: File[] = [];
+
+    for (let index = 0; index < files.length; index++) {
+      const fileType = files[index]["type"];
       const validImageTypes = ["image/gif", "image/jpeg", "image/png"];
 
       if (validImageTypes.includes(fileType)) {
-        setImages([...images, image[index]]);
+        validNewImages.push(files[index]);
       } else {
         setMessage("only images accepted");
       }
     }
+
+    setNewImages((prev) => [...prev, ...validNewImages]);
   };
 
-  const removeImage = (imageName: string) => {
-    setImages(images.filter((image) => image.name !== imageName));
+  const removeNewImage = (imageName: string) => {
+    setNewImages(newImages.filter((image) => image.name !== imageName));
+  };
+
+  const removeExistingImage = (imageId: string) => {
+    setExistingImages(existingImages.filter((img) => img.id !== imageId));
+    setImagesToDelete((prev) => [...prev, imageId]);
   };
 
   useEffect(() => {
-    console.log("errors: ", errors);
-  }, [errors]);
+    if (isEditMode) {
+      reset({
+        title: book.title,
+        author: book.author,
+        description: book.description,
+        categories: book.categories.map((category) => ({
+          value: category,
+          label: category,
+        })),
+      });
+      setExistingImages(book.images);
+    }
+  }, [book, isEditMode, reset]);
 
   return (
     <form onSubmit={handleSubmit(submitForm)}>
@@ -225,10 +279,10 @@ const BookForm = () => {
           <textarea
             {...register("description", { required: true })}
             id="description"
-            rows="6"
+            rows={6}
             className="peer bg-athens-gray placeholder:text-secondary-300 block w-full resize-none rounded-md py-[9px] pl-5 text-sm outline-none"
             placeholder="Write your thoughts here..."
-            maxLength="520"
+            maxLength={520}
           ></textarea>
           {errors?.description && (
             <p className="text-error-600 mt-2 text-sm">
@@ -293,25 +347,58 @@ const BookForm = () => {
             </div>
           </div>
           {message && <span className="text-error-600">{message}</span>}
-          <div className="flex flex-wrap gap-4">
-            {images.map((image, index) => (
-              <div key={index} className="relative overflow-hidden">
-                <div className="h-full w-full border-2 p-5">
-                  <XCircleIcon
-                    onClick={removeImage.bind(this, image.name)}
-                    className="e absolute top-2 right-2 h-8 w-8 cursor-pointer text-gray-500"
-                  />
-                  <Image
-                    className="pt-2"
-                    src={URL.createObjectURL(image)}
-                    alt="photo"
-                    width={60}
-                    height={60}
-                  />
-                </div>
+          {isEditMode && existingImages.length > 0 && (
+            <div className="mt-4">
+              <h3 className="mb-2 text-sm font-semibold text-gray-700">
+                Current Images
+              </h3>
+              <div className="flex flex-wrap gap-4">
+                {existingImages.map((image) => (
+                  <div key={image.id} className="relative overflow-hidden">
+                    <div className="h-full w-full border-2 p-5">
+                      <XCircleIcon
+                        onClick={removeExistingImage.bind(this, image.id)}
+                        className="e absolute top-2 right-2 h-8 w-8 cursor-pointer text-gray-500"
+                      />
+                      <Image
+                        className="pt-2"
+                        src={image.url}
+                        alt="photo"
+                        width={60}
+                        height={60}
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
+            </div>
+          )}
+          {newImages.length > 0 && (
+            <div className="mt-4">
+              <h3 className="mb-2 text-sm font-semibold text-gray-700">
+                New Images
+              </h3>
+              <div className="flex flex-wrap gap-4">
+                {newImages.map((image) => (
+                  <div key={image.name} className="relative overflow-hidden">
+                    <div className="h-full w-full border-2 p-5">
+                      <XCircleIcon
+                        onClick={removeNewImage.bind(this, image.name)}
+                        className="absolute top-2 right-2 h-8 w-8 cursor-pointer text-gray-500 hover:text-gray-700"
+                      />
+                      <Image
+                        className="pt-2"
+                        src={URL.createObjectURL(image)}
+                        alt="new photo"
+                        width={60}
+                        height={60}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
       <div className="flex gap-4">

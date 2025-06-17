@@ -6,7 +6,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/lib/auth";
 import Link from "next/link";
 import Discussion from "@/app/books/[id]/components/discussion";
-import Comment from "@/app/types/comment";
 
 export const revalidate = 60;
 
@@ -39,6 +38,8 @@ export default async function Page({
     response.json(),
   );
 
+  console.log("book: ", book);
+
   return (
     <div className="mr-[32px] ml-[32px] pt-[20px]">
       <div className="flex items-center justify-between pb-4">
@@ -46,7 +47,9 @@ export default async function Page({
           <Button size="medium">Go Back</Button>
         </Link>
         {session && session.user.id && session.user.id === book.owner.id && (
-          <Button size="medium">Edit book</Button>
+          <Link href={`/dashboard/edit-book/${id}`}>
+            <Button size="medium">Edit book</Button>
+          </Link>
         )}
       </div>
       <div className="flex gap-[20px]">

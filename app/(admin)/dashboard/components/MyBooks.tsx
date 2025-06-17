@@ -9,7 +9,6 @@ import {
   ChevronDoubleLeftIcon,
   ChevronDoubleRightIcon,
 } from "@heroicons/react/24/outline";
-import imageLoader from "@/app/lib/imageLoader";
 import Book from "@/app/types/book";
 import { useRouter } from "next/navigation";
 
@@ -78,22 +77,32 @@ const MyBooks: FC<Props> = ({ books }) => {
             ref={containerRef}
           >
             {books.map((book) => (
-              <div
+              <Button
                 key={book.id}
                 onClick={handleClick.bind(this, book.id)}
                 className="ml-6 inline-block max-w-[182px] cursor-pointer rounded-lg border p-4 shadow first:ml-0"
               >
                 <div className="relative mb-[8px] h-40 w-full">
-                  <Image
-                    src={book.images[0]}
-                    alt={book.title}
-                    quality={100}
-                    fill={true}
-                    className="rounded-xl object-cover"
-                    loader={imageLoader}
-                    blurDataURL="data:image/svg+xml;base64"
-                    layout="fill"
-                  />
+                  {book.images && book.images.length > 0 ? (
+                    <Image
+                      src={book.images[0].url}
+                      alt={book.title}
+                      quality={100}
+                      fill={true}
+                      className="rounded-xl object-cover"
+                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                    />
+                  ) : (
+                    <div className="flex h-full w-full items-center justify-center rounded-xl bg-gray-200">
+                      <Image
+                        src={BookIcon}
+                        alt="No image"
+                        width={40}
+                        height={40}
+                        className="opacity-50"
+                      />
+                    </div>
+                  )}
                 </div>
                 <div className="text-secondary-500 truncate text-[14px] font-bold">
                   {book.title.length > 25
@@ -103,7 +112,7 @@ const MyBooks: FC<Props> = ({ books }) => {
                 <div className="text-secondary-300 pt-[4px] text-[14px] font-bold">
                   {book.author}
                 </div>
-              </div>
+              </Button>
             ))}
           </div>
           {books.length * ITEM_WIDTH > dimensions.width && (

@@ -136,9 +136,17 @@ exports.Prisma.BookScalarFieldEnum = {
   author: 'author',
   description: 'description',
   categories: 'categories',
-  images: 'images',
   status: 'status',
   ownerId: 'ownerId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BookImageScalarFieldEnum = {
+  id: 'id',
+  url: 'url',
+  hash: 'hash',
+  bookId: 'bookId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -176,6 +184,7 @@ exports.BookStatus = exports.$Enums.BookStatus = {
 exports.Prisma.ModelName = {
   User: 'User',
   Book: 'Book',
+  BookImage: 'BookImage',
   Comment: 'Comment'
 };
 
