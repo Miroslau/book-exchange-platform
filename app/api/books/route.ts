@@ -3,7 +3,6 @@ import { db } from "@/app/lib/db";
 import { z } from "zod";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/lib/auth";
-import { extractImageIdFromUrl, generateImageHash } from "@/app/lib/imageUtils";
 
 interface createBookDTO {
   title: string;
@@ -21,12 +20,44 @@ const baseBookSchema = z.object({
 });
 
 const updateBookSchema = baseBookSchema.extend({
-  newImages: z.array(z.string()).optional().default([]),
+  newImages: z
+    .array(
+      z.union([
+        z.string(), // Для обратной совместимости - просто URL
+        z.object({
+          // Новый формат - объект с URL и phash
+          url: z.string(),
+          phash: z.string(),
+        }),
+        z.object({
+          // Альтернативный формат от upload API
+          imgUrl: z.string(),
+          phash: z.string(),
+        }),
+      ]),
+    )
+    .optional()
+    .default([]),
   imagesToDelete: z.array(z.string()).optional().default([]),
 });
 
 const createBookSchema = baseBookSchema.extend({
-  images: z.array(z.string()).optional().default([]),
+  images: z
+    .array(
+      z.union([
+        z.string(),
+        z.object({
+          url: z.string(),
+          phash: z.string(),
+        }),
+        z.object({
+          imgUrl: z.string(),
+          phash: z.string(),
+        }),
+      ]),
+    )
+    .optional()
+    .default([]),
 });
 
 type CreateBookDTO = z.infer<typeof createBookSchema>;
@@ -132,9 +163,12 @@ export async function POST(req: NextRequest) {
         description: parsed.description,
         categories: parsed.categories,
         images: {
-          create: parsed.images.map((url) => ({
-            url,
-            hash: generateImageHash(extractImageIdFromUrl(url)),
+          create: parsed.images.map((imageInfo: any) => ({
+            url: typeof imageInfo === "string" ? imageInfo : imageInfo.url,
+            hash:
+              typeof imageInfo === "string"
+                ? "legacy_hash" // Для обратной совместимости
+                : imageInfo.phash, // Теперь phash сохраняется в поле hash
           })),
         },
         ownerId: user.id,

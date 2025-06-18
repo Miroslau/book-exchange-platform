@@ -52,6 +52,7 @@ const FormSchema = z.object({
 
 const BookForm: FC<BookFormProps> = ({ book, mode = "edit" }) => {
   const [newImages, setNewImages] = useState<File[]>([]);
+  const [duplicateWarnings, setDuplicateWarnings] = useState<string[]>([]);
   const [existingImages, setExistingImages] = useState<BookImage[]>(
     book?.images || [],
   );
@@ -91,8 +92,9 @@ const BookForm: FC<BookFormProps> = ({ book, mode = "edit" }) => {
         formData.append("file", image);
         formData.append("folderRoot", "Books");
         formData.append("folderName", `${value.title}`);
+        formData.append("allowDuplicates", "false");
 
-        const uploadResponse = await fetch("/api/upload", {
+        const uploadResponse = await fetch("/api/books/upload", {
           method: "POST",
           body: formData,
         });
@@ -100,7 +102,24 @@ const BookForm: FC<BookFormProps> = ({ book, mode = "edit" }) => {
         const data = await uploadResponse.json();
 
         if (uploadResponse.ok && data.imgUrl) {
-          return data.imgUrl;
+          if (data.message === "duplicate") {
+            setDuplicateWarnings((prev) => [
+              ...prev,
+              `Image "${image.name}" already exists in "${data.existingBookTitle}"`,
+            ]);
+            return null;
+          } else if (data.imgUrl && data.phash) {
+            return {
+              url: data.imgUrl,
+              phash: data.phash,
+            };
+          } else if (data.imgUrl) {
+            // Fallback если phash отсутствует
+            return {
+              url: data.imgUrl,
+              phash: `fallback_${Date.now()}`,
+            };
+          }
         } else {
           console.error("Upload failed:", data);
           return null;
@@ -108,7 +127,7 @@ const BookForm: FC<BookFormProps> = ({ book, mode = "edit" }) => {
       });
 
       const uploadResults = await Promise.all(uploadPromises);
-      const uploadedImageUrls = uploadResults.filter((url) => url !== null);
+      const uploadedImages = uploadResults.filter((result) => result !== null);
 
       let body;
 
@@ -118,7 +137,7 @@ const BookForm: FC<BookFormProps> = ({ book, mode = "edit" }) => {
           author: value.author,
           description: value.description,
           categories: value.categories.map((g: { value: string }) => g.value),
-          newImages: uploadedImageUrls,
+          newImages: uploadedImages,
           imagesToDelete,
         };
       } else {
@@ -127,7 +146,7 @@ const BookForm: FC<BookFormProps> = ({ book, mode = "edit" }) => {
           author: value.author,
           description: value.description,
           categories: value.categories.map((g: { value: string }) => g.value),
-          images: uploadedImageUrls,
+          images: uploadedImages,
         };
       }
 
@@ -403,7 +422,7 @@ const BookForm: FC<BookFormProps> = ({ book, mode = "edit" }) => {
       </div>
       <div className="flex gap-4">
         <Button disabled={loading} type="submit" size="large">
-          Create
+          {isEditMode ? "Update" : "Create"}
         </Button>
         <Button
           type="button"
