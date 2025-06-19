@@ -65,8 +65,8 @@ type UpdateBookDTO = z.infer<typeof updateBookSchema>;
 
 export async function GET(req: NextRequest) {
   try {
-    let username = req.nextUrl.searchParams.get("user");
-
+    const username = req.nextUrl.searchParams.get("user");
+    let email;
     if (username && username === "me") {
       const session = await getServerSession(authOptions);
 
@@ -74,14 +74,14 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
       }
 
-      username = session.user.username as string;
+      email = session.user.email as string;
       console.log("username");
     }
 
     const whereClause = username
       ? {
           owner: {
-            username,
+            email,
           },
         }
       : {};
