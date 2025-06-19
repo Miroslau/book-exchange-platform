@@ -38,6 +38,7 @@ export default async function Page({
     response.json(),
   );
 
+  console.log("session: ", session);
   console.log("book: ", book);
 
   return (

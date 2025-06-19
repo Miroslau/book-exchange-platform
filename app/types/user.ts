@@ -3,10 +3,10 @@ import Comment from "@/app/types/comment";
 import { StaticImageData } from "next/image";
 
 interface User {
-  id: number;
+  id: string;
   username: string;
   email: string;
-  avatar: string | StaticImageData | null;
+  image: string | StaticImageData | null;
   books?: Book[];
   comments?: Comment[];
   createdAt?: string;

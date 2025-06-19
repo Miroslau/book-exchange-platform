@@ -35,17 +35,10 @@ export async function POST(request: Request) {
     const body: signUpDTO = await request.json();
     const { email, username, password } = userSchema.parse(body);
 
-    const [existingUserByEmail, existingUserByUsername] = await Promise.all([
-      db.user.findUnique({ where: { email } }),
-      db.user.findUnique({ where: { username } }),
-    ]);
+    const existingUserByEmail = await db.user.findUnique({ where: { email } });
 
     if (existingUserByEmail) {
       return errorResponse("User with this email already exists", 409);
-    }
-
-    if (existingUserByUsername) {
-      return errorResponse("User with this username already exists", 409);
     }
 
     const hashedPassword = await hash(password, 10);

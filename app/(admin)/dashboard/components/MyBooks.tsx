@@ -62,7 +62,7 @@ const MyBooks: FC<Props> = ({ books }) => {
 
   return (
     <div className="pt-5">
-      {books.length ? (
+      {books && books.length ? (
         <div className="relative flex items-center">
           {scrollPosition > 0 && (
             <ChevronDoubleLeftIcon

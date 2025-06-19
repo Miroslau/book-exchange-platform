@@ -8,16 +8,33 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+/**
+ * model User {
+ * id        Int       @id @default(autoincrement())
+ * email     String    @unique
+ * username  String    @unique
+ * password  String
+ * avatar    String?
+ * createdAt DateTime  @default(now())
+ * updatedAt DateTime  @updatedAt
+ * books     Book[]
+ * comments  Comment[]
+ * }
+ */
 model User {
-  id        Int       @id @default(autoincrement())
-  email     String    @unique
-  username  String    @unique
-  password  String
-  avatar    String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  books     Book[]
-  comments  Comment[]
+  id            String    @id @default(cuid())
+  name          String?
+  username      String?
+  email         String    @unique
+  emailVerified DateTime?
+  password      String?
+  image         String?
+  accounts      Account[]
+  sessions      Session[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  Book          Book[]
+  Comment       Comment[]
 }
 
 model Book {
@@ -27,7 +44,7 @@ model Book {
   description String?
   categories  String[]
   status      BookStatus  @default(OFFERED)
-  ownerId     Int
+  ownerId     String
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   owner       User        @relation(fields: [ownerId], references: [id], onDelete: Cascade)
@@ -52,11 +69,50 @@ model Comment {
   id        Int      @id @default(autoincrement())
   text      String
   bookId    Int
-  authorId  Int
+  authorId  String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
   book      Book     @relation(fields: [bookId], references: [id], onDelete: Cascade)
+}
+
+model Account {
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@id([identifier, token])
 }
 
 enum BookStatus {

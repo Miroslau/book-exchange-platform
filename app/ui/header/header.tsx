@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useEffect } from "react";
+import React from "react";
 import SearchBar from "@/app/ui/search-bar/search-bar";
 import Button from "@/app/ui/button/button";
 import Link from "next/link";
@@ -21,6 +21,8 @@ const Header = () => {
   const navigateToDashboard = () => {
     router.replace("/dashboard");
   };
+
+  console.log(session);
 
   return (
     <header className="fixed top-0 z-10 grid w-full grid-rows-2 items-center gap-[20px] bg-white px-[24px] py-[30px] md:grid-cols-(--header-grid-cols) md:grid-rows-1 md:py-[40px] md:pr-[32px] md:pl-[60px]">

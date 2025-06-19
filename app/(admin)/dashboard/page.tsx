@@ -35,7 +35,7 @@ const Page = async () => {
       <div className="p-[32px]">
         <div className="flex items-center justify-between">
           <span className="text-[18px] font-medium">My books</span>
-          {books.length > 0 && (
+          {books && books.length > 0 && (
             <Link href="/dashboard/create-book">
               <Button size="medium" customClassName="pl-[32px] pr-[32px]">
                 Add

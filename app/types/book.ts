@@ -15,7 +15,7 @@ interface Book {
   id: number;
   images: BookImage[];
   owner: {
-    avatar: string;
+    image: string;
     email: string;
     id: number;
     username: string;

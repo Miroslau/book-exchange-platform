@@ -42,7 +42,7 @@ export async function GET(
           select: {
             id: true,
             username: true,
-            avatar: true,
+            image: true,
             email: true,
           },
         },
@@ -201,7 +201,7 @@ export async function PUT(
               id: true,
               email: true,
               username: true,
-              avatar: true,
+              image: true,
             },
           },
         },

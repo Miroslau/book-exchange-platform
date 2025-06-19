@@ -74,7 +74,7 @@ const Discussion: FC<Props> = ({ bookId }) => {
         id: session?.user?.id as number,
         username: session?.user?.username as string,
         email: session?.user?.email as string,
-        avatar: session?.user?.image || DefaultUserImage,
+        image: session?.user?.image || DefaultUserImage,
       },
       createdAt: new Date().toString(),
       updatedAt: new Date().toString(),
@@ -169,8 +169,8 @@ const Discussion: FC<Props> = ({ bookId }) => {
                     width={56}
                     height={56}
                     src={
-                      comment?.author?.avatar
-                        ? comment?.author?.avatar
+                      comment?.author?.image
+                        ? comment?.author?.image
                         : DefaultUserImage
                     }
                     alt="user"

@@ -13,16 +13,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Button from "@/app/ui/button/button";
 import Book, { BookImage } from "@/app/types/book";
 
-interface BookDTO {
-  title: string;
-  author: string;
-  description: string;
-  categories: string[];
-  images?: string[];
-  newImages?: string[];
-  imagesToDelete?: string[];
-}
-
 interface BookFormProps {
   book?: Book;
   mode?: "create" | "edit";
